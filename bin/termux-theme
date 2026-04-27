@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+THEME_DIR="${TERMUX_THEME_DIR:-"$HOME/.termux/themes"}"
+COLORS_FILE="${TERMUX_COLORS_FILE:-"$HOME/.termux/colors.properties"}"
+RELOAD_ACTION="com.termux.app.reload_style"
+RECREATE_EXTRA="com.termux.app.TermuxActivity.EXTRA_RECREATE_ACTIVITY"
+
+die() {
+  printf 'termux-theme: %s\n' "$*" >&2
+  exit 1
+}
+
+reload_termux() {
+  if command -v am >/dev/null 2>&1; then
+    am broadcast -a "$RELOAD_ACTION" --ez "$RECREATE_EXTRA" false >/dev/null 2>&1 || true
+  fi
+}
+
+theme_file_for_name() {
+  local name="$1"
+  case "$name" in
+    ""|.*|*/*) return 1 ;;
+  esac
+  printf '%s/%s.properties\n' "$THEME_DIR" "$name"
+}
+
+apply_theme_name() {
+  local name="$1"
+  local file
+  file="$(theme_file_for_name "$name")" || return 1
+  [ -r "$file" ] || return 1
+  mkdir -p "$(dirname "$COLORS_FILE")"
+  cp "$file" "$COLORS_FILE"
+  reload_termux
+}
+
+restore_theme() {
+  local backup="$1"
+  local had_colors="$2"
+  mkdir -p "$(dirname "$COLORS_FILE")"
+  if [ "$had_colors" = "1" ]; then
+    cp "$backup" "$COLORS_FILE"
+  else
+    rm -f "$COLORS_FILE"
+  fi
+  reload_termux
+}
+
+list_themes() {
+  local file found=0
+  for file in "$THEME_DIR"/*.properties; do
+    [ -e "$file" ] || continue
+    found=1
+    file="${file##*/}"
+    printf '%s\n' "${file%.properties}"
+  done
+  [ "$found" = "1" ]
+}
+
+color_value() {
+  local file="$1"
+  local key="$2"
+  awk -F '[:=]' -v k="$key" '
+    $0 !~ /^[[:space:]]*[#!]/ {
+      gsub(/[[:space:]]/, "", $1)
+      gsub(/[[:space:]]/, "", $2)
+      if ($1 == k) {
+        print $2
+        exit
+      }
+    }
+  ' "$file"
+}
+
+hex_to_rgb() {
+  local hex="${1#\#}"
+  [ "${#hex}" = "6" ] || return 1
+  printf '%d %d %d\n' "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
+}
+
+paint_bg() {
+  local color="$1"
+  local label="$2"
+  local rgb
+  rgb="$(hex_to_rgb "$color" 2>/dev/null)" || {
+    printf '  %-8s %s\n' "$label" "$color"
+    return
+  }
+  # shellcheck disable=SC2086
+  set -- $rgb
+  printf '\033[48;2;%s;%s;%sm  \033[0m %-8s %s\n' "$1" "$2" "$3" "$label" "$color"
+}
+
+print_preview() {
+  local name="$1"
+  local file fg bg cursor i value
+  file="$(theme_file_for_name "$name")" || exit 0
+  [ -r "$file" ] || exit 0
+
+  fg="$(color_value "$file" foreground)"
+  bg="$(color_value "$file" background)"
+  cursor="$(color_value "$file" cursor)"
+
+  printf '%s\n\n' "$name"
+  paint_bg "${bg:-#000000}" "bg"
+  paint_bg "${fg:-#ffffff}" "fg"
+  paint_bg "${cursor:-#ffffff}" "cursor"
+  printf '\nANSI colors\n'
+  for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+    value="$(color_value "$file" "color$i")"
+    paint_bg "${value:-#000000}" "color$i"
+  done
+}
+
+usage() {
+  cat <<'EOF'
+Usage:
+  termux-theme
+
+Interactive Termux color theme picker.
+
+Keys:
+  Up/Down or search  preview live
+  Enter              apply selected theme
+  Esc/Ctrl-C         restore previous theme
+EOF
+}
+
+case "${1:-}" in
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  --preview)
+    apply_theme_name "${2:-}" || true
+    exit 0
+    ;;
+  --print-preview)
+    print_preview "${2:-}"
+    exit 0
+    ;;
+esac
+
+command -v fzf >/dev/null 2>&1 || die "fzf is required. Install it with: pkg install fzf"
+[ -d "$THEME_DIR" ] || die "theme directory not found: $THEME_DIR"
+
+tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/termux-theme.XXXXXX")"
+backup="$tmp_dir/colors.properties"
+had_colors=0
+if [ -f "$COLORS_FILE" ]; then
+  cp "$COLORS_FILE" "$backup"
+  had_colors=1
+fi
+
+cleanup() {
+  rm -rf "$tmp_dir"
+}
+trap cleanup EXIT
+
+self="$(command -v "$0" 2>/dev/null || printf '%s' "$0")"
+self_quoted="$(printf '%q' "$self")"
+
+selected="$(
+  list_themes | sort | fzf \
+    --height=100% \
+    --reverse \
+    --prompt='Termux theme > ' \
+    --header='Enter: apply | Esc/Ctrl-C: restore | arrows/search: live preview' \
+    --preview="$self_quoted --print-preview {}" \
+    --bind="focus:execute-silent($self_quoted --preview {})"
+)" || {
+  restore_theme "$backup" "$had_colors"
+  printf 'Theme unchanged.\n'
+  exit 1
+}
+
+if [ -n "$selected" ]; then
+  apply_theme_name "$selected" || die "failed to apply theme: $selected"
+  printf 'Applied theme: %s\n' "$selected"
+else
+  restore_theme "$backup" "$had_colors"
+  printf 'Theme unchanged.\n'
+fi
