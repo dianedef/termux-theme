@@ -6,6 +6,7 @@ It gives you the workflow the official Termux:Styling plugin is missing:
 
 - browse themes with `fzf`
 - preview colors live while moving through the list
+- keep your most-used themes at the top
 - press Enter to apply
 - press Esc or Ctrl-C to restore the previous theme
 
@@ -47,6 +48,15 @@ The live preview works by temporarily copying the selected theme to:
 ```
 
 and asking Termux to reload its style without recreating the activity.
+
+Each time you apply a theme with Enter, its local usage counter is incremented
+in:
+
+```text
+~/.termux/theme-usage.tsv
+```
+
+Themes are shown by most-used first, then alphabetically.
 
 ## Add A Theme
 
