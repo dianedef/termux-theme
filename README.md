@@ -36,7 +36,8 @@ It also installs `fzf` with `pkg install -y fzf` if needed.
 ## Usage
 
 ```text
-Up/Down or search  preview live
+Up/Down or j/k     preview live
+Search             filter themes
 Enter              apply selected theme
 Esc/Ctrl-C         restore previous theme
 ```

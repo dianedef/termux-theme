@@ -273,7 +273,7 @@ Usage:
 Interactive Termux color theme picker.
 
 Keys:
-  Up/Down or search  preview live
+  Up/Down, j/k, search  preview live
   Enter              apply selected theme
   Esc/Ctrl-C         restore previous theme
 EOF
@@ -323,9 +323,9 @@ selected="$(
     --height=100% \
     --reverse \
     --prompt='Termux theme > ' \
-    --header='Enter: apply | Esc/Ctrl-C: restore | arrows/search: live preview' \
+    --header='Enter: apply | Esc/Ctrl-C: restore | arrows or j/k: live preview' \
     --preview="$self_quoted --print-preview {}" \
-    --bind="focus:execute-silent($self_quoted --preview {})"
+    --bind="j:down,k:up,focus:execute-silent($self_quoted --preview {})"
 )" || {
   restore_theme "$backup" "$had_colors"
   printf 'Theme unchanged.\n'
