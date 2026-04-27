@@ -97,13 +97,22 @@ color15=#e6e6e6
 This repo ships with a curated set of popular terminal palettes:
 
 - Catppuccin Latte, Frappe, Macchiato, Mocha
+- 2077
+- Cyberdream
+- Cyberpunk
 - Dracula
 - Gruvbox Dark and Light
+- Kanagawa Wave and Dragon
+- Neon Cyberpunk Night
+- Nightfox
 - Nord
+- Poimandres
 - TokyoNight Dark and Day
 - Solarized Dark and Light
 - One Dark
 - Rose Pine, Moon, Dawn
+- Silkcircuit and Silversilk
+- Synthwave84 and Synthweave
 - Monokai
 - Material
 - Ubuntu
