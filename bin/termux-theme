@@ -92,15 +92,117 @@ paint_bg() {
   printf '\033[48;2;%s;%s;%sm  \033[0m %-8s %s\n' "$1" "$2" "$3" "$label" "$color"
 }
 
+ansi_fg() {
+  local color="$1"
+  local rgb
+  rgb="$(hex_to_rgb "$color" 2>/dev/null)" || return
+  # shellcheck disable=SC2086
+  set -- $rgb
+  printf '\033[38;2;%s;%s;%sm' "$1" "$2" "$3"
+}
+
+ansi_bg() {
+  local color="$1"
+  local rgb
+  rgb="$(hex_to_rgb "$color" 2>/dev/null)" || return
+  # shellcheck disable=SC2086
+  set -- $rgb
+  printf '\033[48;2;%s;%s;%sm' "$1" "$2" "$3"
+}
+
+ansi_reset() {
+  printf '\033[0m'
+}
+
+sample_line() {
+  local bg="$1"
+  local fg="$2"
+  shift 2
+  ansi_bg "$bg"
+  ansi_fg "$fg"
+  printf '%-74s' "$*"
+  ansi_reset
+  printf '\n'
+}
+
+sample_hr() {
+  local bg="$1"
+  local fg="$2"
+  sample_line "$bg" "$fg" "  ----------------------------------------------------------------------"
+}
+
+print_work_preview() {
+  local bg="$1"
+  local fg="$2"
+  local c0="$3"
+  local c1="$4"
+  local c2="$5"
+  local c3="$6"
+  local c4="$7"
+  local c5="$8"
+  local c6="$9"
+  local c7="${10}"
+  local c8="${11}"
+  local c10="${12}"
+  local c11="${13}"
+  local c12="${14}"
+  local c14="${15}"
+
+  printf '\nWorkspace preview\n'
+  sample_hr "$bg" "$c8"
+  sample_line "$bg" "$fg" "  Code: bin/termux-theme"
+  sample_line "$bg" "$fg" ""
+
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c5"; printf 'selected'; ansi_fg "$fg"; printf '="$('; ansi_fg "$c4"; printf 'list_themes'; ansi_fg "$fg"; printf ' | '; ansi_fg "$c4"; printf 'fzf'; ansi_fg "$fg"; printf ' \\' ; printf '%*s' 34 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '    '; ansi_fg "$c3"; printf '%s' "--prompt"; ansi_fg "$fg"; printf "='Termux theme > ' \\"; printf '%*s' 36 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '    '; ansi_fg "$c3"; printf '%s' "--bind"; ansi_fg "$fg"; printf "='focus:execute-silent(preview {})')"; printf '%*s' 25 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c2"; printf 'apply_theme_name'; ansi_fg "$fg"; printf ' "$selected"'; printf '%*s' 47 ''; ansi_reset; printf '\n'
+
+  sample_line "$bg" "$fg" ""
+  sample_line "$bg" "$fg" "  Documentation: theme format"
+  sample_line "$bg" "$fg" ""
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c14"; printf 'foreground'; ansi_fg "$fg"; printf '=#f8f8f2  '; ansi_fg "$c14"; printf 'background'; ansi_fg "$fg"; printf '=#282a36  '; ansi_fg "$c14"; printf 'cursor'; ansi_fg "$fg"; printf '=#f8f8f2'; printf '%*s' 14 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c8"; printf '# color0..color15 map to ANSI terminal colors'; printf '%*s' 28 ''; ansi_reset; printf '\n'
+
+  sample_line "$bg" "$fg" ""
+  sample_line "$bg" "$fg" "  Codex"
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c6"; printf 'User'; ansi_fg "$fg"; printf '   Make preview useful, not just color squares.'; printf '%*s' 21 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c10"; printf 'Codex'; ansi_fg "$fg"; printf '  Added a live code/docs/chat sample using this palette.'; printf '%*s' 11 ''; ansi_reset; printf '\n'
+  ansi_bg "$bg"; printf '  '; ansi_fg "$c11"; printf 'Result'; ansi_fg "$fg"; printf ' Readability check before pressing Enter.'; printf '%*s' 29 ''; ansi_reset; printf '\n'
+  sample_hr "$bg" "$c8"
+
+  printf '\nContrast hints\n'
+  paint_bg "$c1" "error"
+  paint_bg "$c2" "success"
+  paint_bg "$c3" "warning"
+  paint_bg "$c4" "link"
+  paint_bg "$c6" "accent"
+  paint_bg "$c7" "text"
+}
+
 print_preview() {
   local name="$1"
   local file fg bg cursor i value
+  local c0 c1 c2 c3 c4 c5 c6 c7 c8 c10 c11 c12 c14
   file="$(theme_file_for_name "$name")" || exit 0
   [ -r "$file" ] || exit 0
 
   fg="$(color_value "$file" foreground)"
   bg="$(color_value "$file" background)"
   cursor="$(color_value "$file" cursor)"
+  c0="$(color_value "$file" color0)"
+  c1="$(color_value "$file" color1)"
+  c2="$(color_value "$file" color2)"
+  c3="$(color_value "$file" color3)"
+  c4="$(color_value "$file" color4)"
+  c5="$(color_value "$file" color5)"
+  c6="$(color_value "$file" color6)"
+  c7="$(color_value "$file" color7)"
+  c8="$(color_value "$file" color8)"
+  c10="$(color_value "$file" color10)"
+  c11="$(color_value "$file" color11)"
+  c12="$(color_value "$file" color12)"
+  c14="$(color_value "$file" color14)"
 
   printf '%s\n\n' "$name"
   paint_bg "${bg:-#000000}" "bg"
@@ -111,6 +213,7 @@ print_preview() {
     value="$(color_value "$file" "color$i")"
     paint_bg "${value:-#000000}" "color$i"
   done
+  print_work_preview "${bg:-#000000}" "${fg:-#ffffff}" "${c0:-#000000}" "${c1:-#ff0000}" "${c2:-#00ff00}" "${c3:-#ffff00}" "${c4:-#0000ff}" "${c5:-#ff00ff}" "${c6:-#00ffff}" "${c7:-#ffffff}" "${c8:-#808080}" "${c10:-#00ff00}" "${c11:-#ffff00}" "${c12:-#0000ff}" "${c14:-#00ffff}"
 }
 
 usage() {
