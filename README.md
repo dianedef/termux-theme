@@ -100,9 +100,8 @@ This repo ships with a curated set of popular terminal palettes:
 - 2077
 - Cyberdream
 - Cyberpunk
-- Dracula
+- Dracula and Dracula Punchy
 - Gruvbox Dark and Light
-- Kanagawa Wave and Dragon
 - Neon Cyberpunk Night
 - Nightfox
 - Nord
@@ -110,13 +109,11 @@ This repo ships with a curated set of popular terminal palettes:
 - Ranger Tmux and Tmux Yellow
 - TokyoNight Dark and Day
 - Solarized Dark and Light
-- One Dark
 - Rose Pine, Moon, Dawn
 - Silkcircuit and Silversilk
 - Synthwave84 and Synthweave
 - Monokai
-- Material
-- Ubuntu
+- Monochrome Rose, Orange, Yellow, and Blue in Dark and Light
 - White on Black
 
 See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for upstream sources and license notes.

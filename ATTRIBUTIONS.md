@@ -17,7 +17,6 @@ Upstream theme families represented in this repository include:
 - Cyberpunk.nvim: https://github.com/samueljoli/cyberpunk.nvim
 - Dracula: https://github.com/dracula/dracula-theme
 - Gruvbox: https://github.com/morhetz/gruvbox
-- Kanagawa: https://github.com/rebelot/kanagawa.nvim
 - Neon.nvim: https://github.com/Zeioth/neon.nvim
 - Nightfox: https://github.com/EdenEast/nightfox.nvim
 - Nord: https://github.com/nordtheme/nord
@@ -26,7 +25,7 @@ Upstream theme families represented in this repository include:
   xterm colour198 hot pink and colour226 yellow
 - TokyoNight: https://github.com/folke/tokyonight.nvim
 - Solarized: https://ethanschoonover.com/solarized/
-- Base16 / One Dark / Monokai variants from public Base16 theme ports
+- Base16 / Monokai variants from public Base16 theme ports
 - Rose Pine: https://github.com/rose-pine/rose-pine-theme
 - Silkcircuit / Silversilk: https://github.com/hyperb1iss/silkcircuit-nvim
 - Synthwave84: https://github.com/artanikin/vim-synthwave84
