@@ -107,6 +107,7 @@ This repo ships with a curated set of popular terminal palettes:
 - Nightfox
 - Nord
 - Poimandres
+- Ranger Tmux
 - TokyoNight Dark and Day
 - Solarized Dark and Light
 - One Dark

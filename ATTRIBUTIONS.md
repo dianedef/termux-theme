@@ -22,6 +22,8 @@ Upstream theme families represented in this repository include:
 - Nightfox: https://github.com/EdenEast/nightfox.nvim
 - Nord: https://github.com/nordtheme/nord
 - Poimandres: https://github.com/olivercederborg/poimandres.nvim
+- Ranger Tmux: custom Ranger colorscheme from this user's dotfiles, based on
+  xterm colour198 hot pink and colour226 yellow
 - TokyoNight: https://github.com/folke/tokyonight.nvim
 - Solarized: https://ethanschoonover.com/solarized/
 - Base16 / One Dark / Monokai variants from public Base16 theme ports
